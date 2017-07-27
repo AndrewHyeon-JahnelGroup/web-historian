@@ -17,3 +17,15 @@ if (module.parent) {
   console.log('Listening on http://' + ip + ':' + port);
 }
 
+// fs.readFile('./index.html', function (err, html) {
+//   if (err) {
+//     throw err; 
+//   }       
+//   var server = http.createServer(hander.handleRequest);  
+//   if (module.parent) {
+//     module.exports = server;
+//   } else {
+//     server.listen(port, ip);
+//     console.log('Listening on http://' + ip + ':' + port);
+//   }
+// });

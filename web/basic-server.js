@@ -1,12 +1,13 @@
 var http = require('http');
 var handler = require('./request-handler');
 var initialize = require('./initialize.js');
+var worker = require('../workers/htmlfetcher');
 
 // Why do you think we have this here?
 // HINT: It has to do with what's in .gitignore
 initialize('./archives');
 
-var port = 8080;
+var port = 3000;
 var ip = '127.0.0.1';
 var server = http.createServer(handler.handleRequest);
 

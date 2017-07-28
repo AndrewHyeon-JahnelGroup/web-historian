@@ -1,6 +1,7 @@
-var fs = require('fs');
 var path = require('path');
 var _ = require('underscore');
+var request = require('request');
+var fs = require('fs');
 
 /*
  * You will need to reuse the same paths many times over in the course of this sprint.
@@ -31,6 +32,12 @@ exports.readListOfUrls = function(callback) {
       throw err;
     } else {
       var urlArray = data.split('\n');
+      urlArray.forEach(function(value, index) {
+        if (value === '') {
+          urlArray.splice(index);
+        }
+      });
+      // console.log(urlArray)
       callback(urlArray);
     }
   });
@@ -59,31 +66,54 @@ exports.isUrlInList = function(url, callback) {
 
 exports.addUrlToList = function(url, callback) {
   // console.log(this.paths.list)
-  fs.appendFile(this.paths.list, url, (err, data) => {
-    if (err) {
-      throw err;
-    } else {
-      callback(data);
+  request(url, function (error, response, body) {
+    if (!error) {
+      fs.appendFile(this.paths.list, url, (err, data) => {
+        if (err) {
+          throw err;
+        } else {
+          callback(data);
+        }
+
+      });
     }
-
   });
-    // console.log(this.paths.list)
 
+// the object request will be actually modified
+      // console.log(this.paths.list)
 };
 
 exports.isUrlArchived = function(url, callback) {
   //console.log(this.paths.archivedSites)
-  fs.readdir(this.paths.archivedSites, (err, data) => {
-    //console.log(data)
-    if (err) { 
-      throw err; 
-    } else {
-      //console.log(data.length)
-      var exists = data.includes(url);
-      callback(exists);
+  if (url) {
+    if (url[0] === '/') {
+      url = url.slice(1);
     }
-  });
+    fs.readdir(exports.paths.archivedSites, (err, data) => {
+      if (err) {
+        throw err; 
+      } else {
+      // console.log(url)
+
+        var exists = data.includes(url);
+        callback(exists);
+      }
+    });
+  }
 };
 
 exports.downloadUrls = function(urls) {
+  console.log(urls, 'urls');
+  urls.forEach(function(item) {
+    exports.isUrlArchived(item, function(exists) {
+      if (!exists) {
+        var stream = fs.createWriteStream(exports.paths.archivedSites + '/' + item);
+        request('http://' + item).pipe(stream);
+        // stream.end();
+      }
+
+    });
+
+    // var filestream = fs.createWriteStream(this.paths.archivedSites + '/' + item);
+  });
 };
